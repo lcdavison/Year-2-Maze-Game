@@ -53,7 +53,36 @@ void ShaderProgram::LinkProgram (  )
 {
 	glLinkProgram ( program_id );
 
+	int success;
+	int length;
+	
+	glGetProgramiv ( program_id, GL_LINK_STATUS, &success );
+
+	if ( !success )
+	{
+		glGetProgramiv ( program_id, GL_INFO_LOG_LENGTH, &length );
+
+		char buffer [ length ];
+
+		glGetProgramInfoLog ( program_id, length, NULL, buffer );
+
+		std::cout << "LINK : " << buffer << std::endl;
+	}
+
 	glValidateProgram ( program_id );
+
+	glGetProgramiv ( program_id, GL_VALIDATE_STATUS, &success );
+
+	if ( !success )
+	{
+		glGetProgramiv ( program_id, GL_INFO_LOG_LENGTH, &success );
+
+		char buffer [ length ];
+
+		glGetProgramInfoLog ( program_id, length, NULL, buffer );
+
+		std::cout << "VALIDATION : " << buffer << std::endl;
+	}
 }
 
 void ShaderProgram::UseProgram (  )
