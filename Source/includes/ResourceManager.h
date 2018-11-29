@@ -2,7 +2,10 @@
 
 #include "Importer.hpp"
 
+#include <iostream>
 #include <fstream>
+#include <string>
+#include <sstream>
 
 class ResourceManager 
 {
@@ -10,7 +13,7 @@ class ResourceManager
 		ResourceManager (  );
 
 		bool LoadMesh ( const char* );
-		bool LoadShader ( const char*, char* );
+		bool LoadShader ( const char*, std::string& );
 
 	private:
 
