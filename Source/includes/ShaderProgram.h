@@ -3,6 +3,7 @@
 #include <glew.h>
 
 #include "Shader.h"
+#include "ServiceLocator.h"
 
 #include <vector>
 
