@@ -25,7 +25,7 @@ bool ResourceManager::LoadShader ( const char* path, std::string& out_shader )
 
 	while ( std::getline ( file, line ) )
 	{
-		stringbuffer << line;
+		stringbuffer << line << std::endl;
 	}
 
 	file.close (  );
