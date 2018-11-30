@@ -1,8 +1,7 @@
 #pragma once
 
-#include "Window.h"
 #include "Renderer.h"
-#include "EntityComponentSystem.h"
+#include "ServiceLocator.h"
 
 #include <iostream>
 #include <memory>

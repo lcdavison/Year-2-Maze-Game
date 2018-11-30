@@ -4,6 +4,7 @@
 #include <SDL.h>
 
 #include "Window.h"
+#include "ShaderProgram.h"
 
 #include <memory>
 
