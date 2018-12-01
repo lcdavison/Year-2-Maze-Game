@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vertex.h"
+#include "Texture.h"
 
 #include <vector>
 
