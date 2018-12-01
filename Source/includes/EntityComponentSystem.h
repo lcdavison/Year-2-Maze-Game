@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Entity.h"
+
+#include "Transform.h"
 #include "Model.h"
 
 #include <iostream>
@@ -9,21 +11,33 @@
 
 class EntityComponentSystem 
 {
-
 	public:
 	
 		EntityComponentSystem (  );
 
-		void CreateEntity ( std::string name = "Entity_" );
-		void Print (  );
+		Entity CreateEntity ( std::string name = "Entity_" );
+
+		Transform AddTransform ( const Entity& );
+		Transform GetTransform ( const Entity& );
+
+		Model AddModel ( const Entity& );
+		Model GetModel ( const Entity& );
 
 		void Update ( const float& );
 
+		std::vector < Model >& GetModels (  );
+		std::vector < Transform >& GetTransforms (  );
+
 	private:
+
+		unsigned int BinarySearch ( std::vector < Component >&, const Entity& );
 
 		static unsigned int new_id;
 
+		//	Stores Entities
 		std::vector < Entity > entities;
 
+		//	Stores Components
+		std::vector < Transform > transforms;
 		std::vector < Model > models; 
 };
