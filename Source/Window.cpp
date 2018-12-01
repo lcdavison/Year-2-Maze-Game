@@ -7,6 +7,15 @@ Window::Window ( const char* title, const unsigned int& width, const unsigned in
 	strcpy ( this->title, title );
 }
 
+Window::~Window (  )
+{
+	if ( window != nullptr )
+		SDL_DestroyWindow ( window );
+
+	if ( title != nullptr )
+		delete title;
+}
+
 bool Window::CreateWindow (  )
 {
 	window = SDL_CreateWindow ( title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL );
@@ -17,13 +26,15 @@ bool Window::CreateWindow (  )
 		return false;
 	}
 
+	SDL_GLContext context = SDL_GL_CreateContext ( window );
+
 	SDL_GL_SetAttribute ( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
 
 	SDL_GL_SetAttribute ( SDL_GL_CONTEXT_MAJOR_VERSION, 4 );
 	SDL_GL_SetAttribute ( SDL_GL_CONTEXT_MINOR_VERSION, 6 );
 
 	SDL_GL_SetAttribute ( SDL_GL_MULTISAMPLEBUFFERS, 1 );
-	SDL_GL_SetAttribute ( SDL_GL_MULTISAMPLESAMPLES, 4 );
+	SDL_GL_SetAttribute ( SDL_GL_MULTISAMPLESAMPLES, 8 );
  
 	return true;
 }
