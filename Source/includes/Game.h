@@ -19,6 +19,8 @@ class Game
 
 		void MainLoop (  );
 
+		void BuildLevel (  );
+
 		void Update ( const float& );
 		void Render (  );
 

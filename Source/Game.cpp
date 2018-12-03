@@ -2,7 +2,6 @@
 
 Game::Game (  )
 {
-
 }
 
 void Game::Start (  )
@@ -16,6 +15,14 @@ void Game::Start (  )
 	renderer = std::make_shared < Renderer > ( window );
 	ecs = std::make_shared < EntityComponentSystem > (  );
 
+	ServiceLocator::ProvideWindow ( window );
+	ServiceLocator::ProvideEntityComponentSystem ( ecs );
+	ServiceLocator::ProvideResourceManager ( std::make_shared < ResourceManager > (  ) );
+
+	BuildLevel (  );
+
+	renderer->Initialize (  );
+
 	running = true;
 
 	MainLoop (  );
@@ -23,7 +30,6 @@ void Game::Start (  )
 
 void Game::Stop (  )
 {
-
 }
 
 void Game::MainLoop (  )
@@ -66,10 +72,25 @@ void Game::MainLoop (  )
 void Game::Update ( const float& delta )
 {
 	ecs->Update ( delta );
-	std::cout << "UPDATE : " << delta << std::endl;
 }
 
 void Game::Render (  )
 {
 	renderer->Render (  );
+}
+
+void Game::BuildLevel (  )
+{
+	for ( int i = 0; i < 10; i++ )
+	{
+		const Entity* floor = ecs->CreateEntity (  );
+		Transform* t = ecs->AddTransform ( floor );
+		Model* m = ecs->AddModel ( floor );
+
+		t->position = glm::vec3 ( 0, 0, i * 2 );
+		t->rotation = glm::vec3 ( 90.0f, 0.0f, 0.0f );
+		t->scale = glm::vec3 ( 1.0f, 1.0f, 1.0f );
+
+		ServiceLocator::LocateResourceManager (  )->LoadModel ( "resources/models/Plane.obj", m );
+	}
 }
