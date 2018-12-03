@@ -1,7 +1,6 @@
 #include "Includes/Renderer.h"
 
-ShaderProgram* program = nullptr;
-Model test;
+//	TODO: Use callback to recalculate the projection matrix
 
 Renderer::Renderer ( std::shared_ptr < Window > window ) : window ( window )
 {
@@ -18,15 +17,18 @@ Renderer::~Renderer (  )
 
 void Renderer::Initialize (  )
 {
-	program = new ShaderProgram (  );
+	ecs = ServiceLocator::LocateEntityComponentSystem (  );
+
+	program = std::make_unique < ShaderProgram > (  );
 	program->CreateShader ( "resources/vertex.glsl", GL_VERTEX_SHADER );
 	program->CreateShader ( "resources/fragment.glsl", GL_FRAGMENT_SHADER );
 	program->CompileShaders (  );
 	program->LinkProgram (  );
 
-	ServiceLocator::LocateResourceManager (  )->LoadModel ( "resources/models/monkey.obj", test.meshes );
-
-	CreateModel ( test );
+	for ( Model& model : ecs->GetModels (  ) )
+	{
+		CreateModel ( model );
+	}
 }
 
 void Renderer::Render (  )
@@ -35,39 +37,30 @@ void Renderer::Render (  )
 
 	program->UseProgram (  );
 
-	int x, y;
-	SDL_GetMouseState ( &x, &y );
-
-	glm::mat4 model = glm::mat4 ( 1.0 );
-	model = glm::rotate ( model, glm::radians ( SDL_GetTicks (  ) * 0.01f ), glm::vec3 ( 0, 1, 0 ) );
-
 	glm::mat4 projection = glm::perspective ( glm::radians ( 90.0f ), 1280.0f / 720.0f, 0.1f, 100.0f );
-	glm::mat4 view = glm::lookAt ( glm::vec3 ( 0, 0, 2 ), glm::vec3 ( 0, 0, 0 ), glm::vec3 ( 0, 1, 0 ) );
 
-	glm::mat4 mvp = projection * view * model;
+	glm::mat4 view = glm::mat4 ( 1 );
+	view = glm::translate ( view, -1.0f * glm::vec3 ( 0, glm::sin ( SDL_GetTicks (  ) * 0.01f ), 5 ) );
 
-	int mvp_loc = glGetUniformLocation ( program->GetProgramID (  ), "mvp" );
-	glUniformMatrix4fv ( mvp_loc, 1, GL_FALSE, &mvp [ 0 ] [ 0 ] );
+	int proj_loc = glGetUniformLocation ( program->GetProgramID (  ), "projection" );
+	glUniformMatrix4fv ( proj_loc, 1, GL_FALSE, &projection [ 0 ] [ 0 ] );
 
-	int time_loc = glGetUniformLocation ( program->GetProgramID (  ), "time" );
-	glUniform1f ( time_loc, ( float ) SDL_GetTicks (  ) );
+	int view_loc = glGetUniformLocation ( program->GetProgramID (  ), "view" );
+	glUniformMatrix4fv ( view_loc, 1, GL_FALSE, &view [ 0 ] [ 0 ] );
 
-	for ( Mesh mesh : test.meshes )
+	int model_loc = glGetUniformLocation ( program->GetProgramID (  ), "model" );
+
+	for ( Model model : ecs->GetModels (  ) )	
 	{
-		glBindVertexArray ( mesh.vertex_array );
+		const Entity* entity = ecs->GetEntity ( model.entity );
 
-		glEnableVertexAttribArray ( 0 );
-		glEnableVertexAttribArray ( 1 );
-		//glEnableVertexAttribArray ( 2 );
-		
-		//glPolygonMode ( GL_FRONT_AND_BACK, GL_POINT );
-		glDrawElements ( GL_TRIANGLES, mesh.indices.size (  ), GL_UNSIGNED_INT, NULL );
+		Transform* entity_transform = ecs->GetTransform ( entity );
 
-		//glDisableVertexAttribArray ( 2 );
-		glDisableVertexAttribArray ( 1 );
-		glDisableVertexAttribArray ( 0 );
+		glm::mat4 m = CreateTransformation ( entity_transform );
 
-		glBindVertexArray ( 0 );
+		glUniformMatrix4fv ( model_loc, 1, GL_FALSE, &m [ 0 ] [ 0 ] );
+
+		RenderModel ( model );
 	}
 
 	SDL_GL_SwapWindow ( window->GetWindowHandle (  ) );
@@ -100,4 +93,38 @@ void Renderer::CreateModel ( Model& model )
 		glBindBuffer ( GL_ARRAY_BUFFER, 0 );
 		glBindVertexArray ( 0 );
 	}
+}
+
+void Renderer::RenderModel ( Model& model )
+{
+	for ( Mesh mesh : model.meshes )
+	{
+		glBindVertexArray ( mesh.vertex_array );
+
+		glEnableVertexAttribArray ( 0 );
+		glEnableVertexAttribArray ( 1 );
+		//glEnableVertexAttribArray ( 2 );
+		
+		//glPolygonMode ( GL_FRONT_AND_BACK, GL_POINT );
+		glDrawElements ( GL_TRIANGLES, mesh.indices.size (  ), GL_UNSIGNED_INT, NULL );
+
+		//glDisableVertexAttribArray ( 2 );
+		glDisableVertexAttribArray ( 1 );
+		glDisableVertexAttribArray ( 0 );
+
+		glBindVertexArray ( 0 );
+	}	
+}
+
+glm::mat4 Renderer::CreateTransformation ( Transform* transform )
+{
+	glm::mat4 transformation = glm::mat4 ( 1 );
+
+	transformation = glm::scale ( transformation, transform->scale );	
+	transformation = glm::translate ( transformation, transform->position );
+	transformation = glm::rotate ( transformation, transform->rotation.z, glm::vec3 ( 0, 0, 1 ) );
+	transformation = glm::rotate ( transformation, transform->rotation.y, glm::vec3 ( 0, 1, 0 ) );
+	transformation = glm::rotate ( transformation, transform->rotation.x, glm::vec3 ( 1, 0, 0 ) );
+
+	return transformation;
 }
