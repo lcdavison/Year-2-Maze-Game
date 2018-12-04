@@ -14,10 +14,12 @@ void Game::Start (  )
 
 	renderer = std::make_shared < Renderer > ( window );
 	ecs = std::make_shared < EntityComponentSystem > (  );
+	input = std::make_shared < InputManager > (  );
 
 	ServiceLocator::ProvideWindow ( window );
 	ServiceLocator::ProvideEntityComponentSystem ( ecs );
 	ServiceLocator::ProvideResourceManager ( std::make_shared < ResourceManager > (  ) );
+	ServiceLocator::ProvideInputManager ( input );
 
 	BuildLevel (  );
 
@@ -48,6 +50,7 @@ void Game::MainLoop (  )
 
 		accumulator += frame_time;
 
+		//	Handle Input Here
 		while ( SDL_PollEvent ( &event ) )
 		{
 			switch ( event.type )
@@ -55,7 +58,19 @@ void Game::MainLoop (  )
 				case SDL_QUIT:
 					running = false;
 					break;
+				case SDL_KEYDOWN:
+					input->SetKeyDown ( event.key.keysym.scancode );
+					break;
+				case SDL_KEYUP:
+					input->SetKeyUp ( event.key.keysym.scancode );
+					break;
 			}
+		}
+
+		for ( Command command : ecs->GetPlayerController (  )->commands )
+		{
+			if ( input->GetKeyDown ( command.key ) )
+				command.OnKeyDown (  );
 		}
 
 		while ( accumulator >= delta_time )
@@ -81,16 +96,23 @@ void Game::Render (  )
 
 void Game::BuildLevel (  )
 {
-	for ( int i = 0; i < 10; i++ )
+	const Entity* test = ecs->CreateEntity (  );
+	ecs->SetPlayer ( test );
+	ecs->AddPlayerCommand ( SDLK_a, [  ] (  ) { std::cout << "Hello World" << std::endl; }, KEYPRESS );
+
+	for ( int x = 0; x < 10; x++ )
 	{
-		const Entity* floor = ecs->CreateEntity (  );
-		Transform* t = ecs->AddTransform ( floor );
-		Model* m = ecs->AddModel ( floor );
+		for ( int y = 0; y < 10; y++ )
+		{
+			const Entity* floor = ecs->CreateEntity (  );
+			Transform* t = ecs->AddTransform ( floor );
+			Model* m = ecs->AddModel ( floor );
 
-		t->position = glm::vec3 ( 0, 0, i * 2 );
-		t->rotation = glm::vec3 ( 90.0f, 0.0f, 0.0f );
-		t->scale = glm::vec3 ( 1.0f, 1.0f, 1.0f );
+			t->position = glm::vec3 ( x * 2, 0, y * 2 );
+			t->rotation = glm::vec3 ( 90.0f, 0.0f, 0.0f );
+			t->scale = glm::vec3 ( 1.0f, 1.0f, 1.0f );
 
-		ServiceLocator::LocateResourceManager (  )->LoadModel ( "resources/models/Plane.obj", m );
+			ServiceLocator::LocateResourceManager (  )->LoadModel ( "resources/models/Plane.obj", m );
+		}
 	}
 }
