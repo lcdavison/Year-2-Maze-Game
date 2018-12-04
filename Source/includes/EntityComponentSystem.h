@@ -3,11 +3,14 @@
 #include "Entity.h"
 
 #include "Transform.h"
+#include "PlayerController.h"
 #include "Model.h"
 
 #include <iostream>
 #include <memory>
 #include <vector>
+
+enum COMMAND_TYPE { KEYPRESS, KEYRELEASE };
 
 class EntityComponentSystem 
 {
@@ -15,7 +18,6 @@ class EntityComponentSystem
 	
 		EntityComponentSystem (  );
 
-		//	Return const pointers
 		const Entity* CreateEntity ( std::string name = "Entity_" );
 		const Entity* GetEntity ( const unsigned int& );
 
@@ -25,6 +27,10 @@ class EntityComponentSystem
 		Model* AddModel ( const Entity* );
 		Model* GetModel ( const Entity* );
 
+		void SetPlayer ( const Entity* );
+		void AddPlayerCommand ( const SDL_Keycode&, void ( *action ) (  ), const COMMAND_TYPE& );
+		const PlayerController* GetPlayerController (  );
+
 		void Update ( const float& );
 
 		std::vector < Model >& GetModels (  );
@@ -32,7 +38,8 @@ class EntityComponentSystem
 
 	private:
 
-		unsigned int BinarySearch ( std::vector < Component >&, const Entity* );
+		void Clear (  );
+		void ClearModels (  );
 
 		static unsigned int new_id;
 
@@ -40,6 +47,7 @@ class EntityComponentSystem
 		std::vector < Entity > entities;
 
 		//	Stores Components
+		PlayerController player_controller;
 		std::vector < Transform > transforms;
 		std::vector < Model > models; 
 };

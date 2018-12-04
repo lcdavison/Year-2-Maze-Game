@@ -76,10 +76,13 @@ Model* EntityComponentSystem::AddModel ( const Entity* entity )
 
 Model* EntityComponentSystem::GetModel ( const Entity* entity )
 {
-	std::vector < Component > search ( models.begin (  ), models.end (  ) );
-	unsigned int index = BinarySearch ( search, entity );
+	for ( int i = 0; i < models.size (  ); i++ )
+	{
+		if ( models.at ( i ).entity == entity->id )
+			return &models [ i ];
+	}
 
-	return &models [ index ];
+	return nullptr;
 }
 
 std::vector < Model >& EntityComponentSystem::GetModels (  )
@@ -87,24 +90,46 @@ std::vector < Model >& EntityComponentSystem::GetModels (  )
 	return models;
 }
 
+void EntityComponentSystem::SetPlayer ( const Entity* entity )
+{
+	player_controller.entity = entity->id;
+}
+
+void EntityComponentSystem::AddPlayerCommand ( const SDL_Keycode& key, void ( *action ) (  ), const COMMAND_TYPE& type )
+{
+	Command new_command;
+
+	new_command.key = key;	
+
+	switch ( type )
+	{
+		case KEYPRESS:
+			new_command.OnKeyDown = action;
+			break;
+		case KEYRELEASE:
+			new_command.OnKeyUp = action;
+			break;
+	}
+
+	player_controller.commands.push_back ( new_command );
+}
+
+const PlayerController* EntityComponentSystem::GetPlayerController (  )
+{
+	return &player_controller;
+}
+
 void EntityComponentSystem::Update ( const float& delta_time )
 {
 	//	TODO: Update all component systems
 }
 
-unsigned int EntityComponentSystem::BinarySearch ( std::vector < Component >& components, const Entity* entity )
+void EntityComponentSystem::Clear (  )
 {
-	unsigned int start = 0, end = components.size (  ) - 1;
+	// TODO: Clear all of the components and entities
+}
 
-	while ( start < end )
-	{
-		unsigned int mid = ( start + ( end - start ) ) / 2;
-
-		if ( components [ mid ].entity == entity->id )
-			return mid;
-		else if ( components [ mid ].entity < entity->id )
-			start = mid + 1;
-		else if ( components [ mid ].entity > entity->id )
-			end = mid - 1;
-	}
+void EntityComponentSystem::ClearModels (  )
+{
+	// TODO: Clear all the model buffers
 }
