@@ -7,6 +7,7 @@
 
 #include "Vertex.h"
 #include "Texture.h"
+#include "Components/Model.h"
 #include "Mesh.h"
 
 #include <vector>
@@ -15,12 +16,14 @@
 #include <string>
 #include <sstream>
 
+//  TODO: Flyweight - Load Model in once, and let other models reference the data for rendering
+
 class ResourceManager 
 {
 	public:
 		ResourceManager (  );
 
-		bool LoadModel ( const std::string&, std::vector < Mesh >& );
+		bool LoadModel ( const std::string&, Model* );
 		bool LoadTexture ( const std::string&, unsigned int& );
 		bool LoadShader ( const char*, std::string& );
 

@@ -8,7 +8,6 @@
 #include "ServiceLocator.h"
 #include "Window.h"
 #include "ShaderProgram.h"
-#include "Model.h"
 
 #include <memory>
 
@@ -31,6 +30,10 @@ class Renderer
 		void RenderModel ( Model& );
 
 		glm::mat4 CreateTransformation ( Transform* );
+		glm::mat4 CreateView ( Transform* );
+
+		glm::mat4 projection;
+		const Entity* player;
 
 		std::shared_ptr < EntityComponentSystem > ecs;
 		std::shared_ptr < Window > window;

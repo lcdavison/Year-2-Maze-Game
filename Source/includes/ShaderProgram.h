@@ -18,6 +18,8 @@ class ShaderProgram
 
 		void UseProgram (  );
 
+		unsigned int GetProgramID (  );
+
 	private:
 		
 		unsigned int program_id;

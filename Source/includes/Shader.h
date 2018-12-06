@@ -4,7 +4,7 @@
 
 struct Shader 
 {
-	unsigned int id;
+	GLuint id;
 	GLenum type;
 	const char* path;
 };

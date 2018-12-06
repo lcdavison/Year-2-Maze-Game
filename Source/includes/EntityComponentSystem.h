@@ -2,15 +2,13 @@
 
 #include "Entity.h"
 
-#include "Transform.h"
-#include "PlayerController.h"
-#include "Model.h"
+#include "Components/Transform.h"
+#include "Components/PlayerController.h"
+#include "Components/Model.h"
 
 #include <iostream>
 #include <memory>
 #include <vector>
-
-enum COMMAND_TYPE { KEYPRESS, KEYRELEASE };
 
 class EntityComponentSystem 
 {
