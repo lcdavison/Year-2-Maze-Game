@@ -7,7 +7,7 @@ ResourceManager::ResourceManager (  )
 {
 }
 
-bool ResourceManager::LoadModel ( const std::string& path, std::vector < Mesh >& meshes )
+bool ResourceManager::LoadModel ( const std::string& path, Model* model )
 {
 	Assimp::Importer importer;
 
@@ -21,7 +21,7 @@ bool ResourceManager::LoadModel ( const std::string& path, std::vector < Mesh >&
 
 	directory = path.substr ( 0, path.find_last_of ( '/' ) );
 
-	ProcessNode ( scene->mRootNode, scene, meshes );
+	ProcessNode ( scene->mRootNode, scene, model->meshes );
 
 	return true;	
 }
