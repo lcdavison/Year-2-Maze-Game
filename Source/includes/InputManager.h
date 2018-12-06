@@ -16,6 +16,7 @@ class InputManager
 
 		bool GetKeyDown ( const SDL_Keycode& );
 		bool GetKeyUp ( const SDL_Keycode& );
+		bool GetKeyHeld ( const SDL_Keycode& );
 
 	private:
 

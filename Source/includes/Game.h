@@ -3,6 +3,8 @@
 #include "Renderer.h"
 #include "ServiceLocator.h"
 
+#include "Scripting/PlayerCommands.h"
+
 #include <iostream>
 #include <memory>
 
@@ -21,6 +23,7 @@ class Game
 
 		void BuildLevel (  );
 
+		void ProcessInput (  );
 		void Update ( const float& );
 		void Render (  );
 
@@ -30,4 +33,5 @@ class Game
 		std::shared_ptr < Window > window;
 		std::shared_ptr < Renderer > renderer;
 		std::shared_ptr < EntityComponentSystem > ecs;
+		std::shared_ptr < InputManager > input;
 };

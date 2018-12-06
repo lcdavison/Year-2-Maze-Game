@@ -10,6 +10,9 @@ InputManager::InputManager (  )
 
 }
 
+/*
+  Checks if a key has been pressed down
+*/
 void InputManager::SetKeyDown ( const SDL_Scancode& scancode )
 {
 	if ( current_keyboard_state [ scancode ] == false )
@@ -54,4 +57,11 @@ bool InputManager::GetKeyUp ( const SDL_Keycode& key )
 	}
 
 	return false;
+}
+
+bool InputManager::GetKeyHeld ( const SDL_Keycode& key )
+{
+	SDL_Scancode scancode = SDL_GetScancodeFromKey ( key );
+
+	return current_keyboard_state [ scancode ];
 }

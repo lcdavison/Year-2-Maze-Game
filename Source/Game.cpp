@@ -67,11 +67,7 @@ void Game::MainLoop (  )
 			}
 		}
 
-		for ( Command command : ecs->GetPlayerController (  )->commands )
-		{
-			if ( input->GetKeyDown ( command.key ) )
-				command.OnKeyDown (  );
-		}
+		ProcessInput (  );
 
 		while ( accumulator >= delta_time )
 		{
@@ -81,6 +77,28 @@ void Game::MainLoop (  )
 		}
 
 		Render (  );
+	}
+}
+
+void Game::ProcessInput (  )
+{
+	for ( Command command : ecs->GetPlayerController (  )->commands )
+	{
+		switch ( command.type )
+		{
+			case KEYPRESS:
+				if ( input->GetKeyDown ( command.key ) )
+					command.Action (  );
+				break;
+			case KEYRELEASE:
+				if ( input->GetKeyUp ( command.key ) )
+					command.Action (  );
+				break;
+			case KEYHELD:
+				if ( input->GetKeyHeld ( command.key ) )
+					command.Action (  );
+				break;
+		}
 	}
 }
 
@@ -98,7 +116,10 @@ void Game::BuildLevel (  )
 {
 	const Entity* test = ecs->CreateEntity (  );
 	ecs->SetPlayer ( test );
-	ecs->AddPlayerCommand ( SDLK_a, [  ] (  ) { std::cout << "Hello World" << std::endl; }, KEYPRESS );
+	ecs->AddPlayerCommand ( SDLK_a, &PlayerCommands::MoveLeft, KEYHELD );
+	ecs->AddPlayerCommand ( SDLK_d, &PlayerCommands::MoveRight, KEYHELD );
+	ecs->AddPlayerCommand ( SDLK_w, &PlayerCommands::MoveForward, KEYHELD );
+	ecs->AddPlayerCommand ( SDLK_s, &PlayerCommands::MoveBackward, KEYHELD );
 
 	for ( int x = 0; x < 10; x++ )
 	{

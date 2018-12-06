@@ -2,9 +2,11 @@
 
 #include <SDL.h>
 
+enum COMMAND_TYPE { KEYPRESS, KEYRELEASE, KEYHELD };
+
 struct Command 
 {
 	SDL_Keycode key;
-	void ( *OnKeyDown ) (  );
-	void ( *OnKeyUp ) (  );
+	void ( *Action ) (  );
+	COMMAND_TYPE type;
 };
