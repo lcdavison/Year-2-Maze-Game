@@ -2,6 +2,8 @@
 
 unsigned int EntityComponentSystem::new_id = 0;
 
+//	TODO: Create an entity pool
+
 EntityComponentSystem::EntityComponentSystem (  )
 {
 }
@@ -37,6 +39,8 @@ Transform* EntityComponentSystem::AddTransform ( const Entity* entity )
 	Transform new_transform;
 
 	new_transform.entity = entity->id;
+
+	entities.at ( entity->id ).component_mask |= TRANSFORM;
 
 	new_transform.position = glm::vec3 ( 0 );
 	new_transform.rotation = glm::vec3 ( 0 );
@@ -93,6 +97,14 @@ std::vector < Model >& EntityComponentSystem::GetModels (  )
 void EntityComponentSystem::SetPlayer ( const Entity* entity )
 {
 	player_controller.entity = entity->id;
+
+	std::cout << entity->component_mask << std::endl;
+
+	if ( !( entity->component_mask & TRANSFORM ) )
+	{
+		Transform* transform = AddTransform ( entity );
+		transform->position = glm::vec3 ( 0, 1, 0 );
+	}
 }
 
 void EntityComponentSystem::AddPlayerCommand ( const SDL_Keycode& key, void ( *action ) (  ), const COMMAND_TYPE& type )
@@ -100,16 +112,8 @@ void EntityComponentSystem::AddPlayerCommand ( const SDL_Keycode& key, void ( *a
 	Command new_command;
 
 	new_command.key = key;	
-
-	switch ( type )
-	{
-		case KEYPRESS:
-			new_command.OnKeyDown = action;
-			break;
-		case KEYRELEASE:
-			new_command.OnKeyUp = action;
-			break;
-	}
+	new_command.Action = action;
+	new_command.type = type;
 
 	player_controller.commands.push_back ( new_command );
 }
