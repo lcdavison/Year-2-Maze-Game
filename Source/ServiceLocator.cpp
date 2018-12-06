@@ -3,6 +3,7 @@
 std::shared_ptr < ResourceManager > ServiceLocator::resource_manager = nullptr;
 std::shared_ptr < EntityComponentSystem > ServiceLocator::ecs = nullptr;
 std::shared_ptr < Window > ServiceLocator::window = nullptr;
+std::shared_ptr < InputManager > ServiceLocator::input_manager = nullptr;
 
 void ServiceLocator::ProvideWindow ( std::shared_ptr < Window > win )
 {
@@ -32,4 +33,14 @@ void ServiceLocator::ProvideResourceManager ( std::shared_ptr < ResourceManager 
 std::shared_ptr < ResourceManager > ServiceLocator::LocateResourceManager (  )
 {
 	return resource_manager;
+}
+
+void ServiceLocator::ProvideInputManager ( std::shared_ptr < InputManager > im )
+{
+	input_manager = im;
+}
+
+std::shared_ptr < InputManager > ServiceLocator::LocateInputManager (  )
+{
+	return input_manager;
 }
