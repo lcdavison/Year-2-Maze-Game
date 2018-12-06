@@ -3,6 +3,7 @@
 #include "Window.h"
 #include "EntityComponentSystem.h"
 #include "ResourceManager.h"
+#include "InputManager.h"
 
 #include <memory>
 
@@ -19,9 +20,13 @@ class ServiceLocator
 		static void ProvideResourceManager ( std::shared_ptr < ResourceManager > );
 		static std::shared_ptr < ResourceManager > LocateResourceManager (  );
 
+		static void ProvideInputManager ( std::shared_ptr < InputManager > );
+		static std::shared_ptr < InputManager > LocateInputManager (  );
+
 	private:
 
 		static std::shared_ptr < Window > window;
 		static std::shared_ptr < EntityComponentSystem > ecs;
 		static std::shared_ptr < ResourceManager > resource_manager;
+		static std::shared_ptr < InputManager > input_manager;
 };
