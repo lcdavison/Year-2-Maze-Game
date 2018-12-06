@@ -1,6 +1,8 @@
 #include "Includes/Renderer.h"
 
 //	TODO: Use callback to recalculate the projection matrix
+//	TODO: Use Camera component to calculate view
+//	TODO: Create more effective Uniform management
 
 Renderer::Renderer ( std::shared_ptr < Window > window ) : window ( window )
 {
@@ -29,6 +31,9 @@ void Renderer::Initialize (  )
 	{
 		CreateModel ( model );
 	}
+
+	projection = glm::perspective ( glm::radians ( 90.0f ), 1280.0f / 720.0f, 0.1f, 100.0f );
+	player = ecs->GetEntity ( 0 );
 }
 
 void Renderer::Render (  )
@@ -37,10 +42,8 @@ void Renderer::Render (  )
 
 	program->UseProgram (  );
 
-	glm::mat4 projection = glm::perspective ( glm::radians ( 90.0f ), 1280.0f / 720.0f, 0.1f, 100.0f );
-
-	glm::mat4 view = glm::mat4 ( 1 );
-	view = glm::translate ( view, -1.0f * glm::vec3 ( 0, glm::sin ( SDL_GetTicks (  ) * 0.01f ), 5 ) );
+	Transform* player_transform = ecs->GetTransform ( player );
+	glm::mat4 view = CreateView ( player_transform );
 
 	int proj_loc = glGetUniformLocation ( program->GetProgramID (  ), "projection" );
 	glUniformMatrix4fv ( proj_loc, 1, GL_FALSE, &projection [ 0 ] [ 0 ] );
@@ -122,9 +125,18 @@ glm::mat4 Renderer::CreateTransformation ( Transform* transform )
 
 	transformation = glm::scale ( transformation, transform->scale );	
 	transformation = glm::translate ( transformation, transform->position );
-	transformation = glm::rotate ( transformation, transform->rotation.z, glm::vec3 ( 0, 0, 1 ) );
-	transformation = glm::rotate ( transformation, transform->rotation.y, glm::vec3 ( 0, 1, 0 ) );
-	transformation = glm::rotate ( transformation, transform->rotation.x, glm::vec3 ( 1, 0, 0 ) );
+	transformation = glm::rotate ( transformation, glm::radians ( transform->rotation.z ), glm::vec3 ( 0, 0, 1 ) );
+	transformation = glm::rotate ( transformation, glm::radians ( transform->rotation.y ), glm::vec3 ( 0, 1, 0 ) );
+	transformation = glm::rotate ( transformation, glm::radians ( transform->rotation.x ), glm::vec3 ( 1, 0, 0 ) );
 
 	return transformation;
+}
+
+glm::mat4 Renderer::CreateView ( Transform* transform )
+{
+	glm::mat4 view = glm::mat4 ( 1 );
+
+	view = glm::translate ( view, -1.0f * transform->position );
+
+	return view;
 }
