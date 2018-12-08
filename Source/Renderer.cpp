@@ -29,7 +29,7 @@ void Renderer::Initialize (  )
 
 	for ( Model& model : ecs->GetModels (  ) )
 	{
-		CreateModel ( model );
+		SetupModel ( model );
 	}
 
 	projection = glm::perspective ( glm::radians ( 90.0f ), 1280.0f / 720.0f, 0.1f, 100.0f );
@@ -53,6 +53,7 @@ void Renderer::Render (  )
 
 	int model_loc = glGetUniformLocation ( program->GetProgramID (  ), "model" );
 
+	
 	for ( Model model : ecs->GetModels (  ) )	
 	{
 		const Entity* entity = ecs->GetEntity ( model.entity );
@@ -74,49 +75,30 @@ void Renderer::Clear (  )
 	glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 }
 
-void Renderer::CreateModel ( Model& model )
+void Renderer::SetupModel ( Model& model )
 {
-	for ( Mesh& mesh : model.meshes )	
-	{
-		glGenVertexArrays ( 1, &mesh.vertex_array );
-		glBindVertexArray ( mesh.vertex_array );
-
-		glGenBuffers ( 1, &mesh.vertex_buffer );
-		glBindBuffer ( GL_ARRAY_BUFFER, mesh.vertex_buffer );
-		glBufferData ( GL_ARRAY_BUFFER, mesh.vertices.size (  ) * sizeof ( Vertex ), &mesh.vertices [ 0 ], GL_STATIC_DRAW );
-
-		glVertexAttribPointer ( 0, 3, GL_FLOAT, GL_FALSE, sizeof ( Vertex ), ( void* ) 0 );
-		glVertexAttribPointer ( 1, 3, GL_FLOAT, GL_FALSE, sizeof ( Vertex ), ( void* ) offsetof ( Vertex, normal ) );
-		//glVertexAttribPointer ( 2, 2, GL_FLOAT, GL_FALSE, sizeof ( Vertex ), ( void* ) offsetof ( Vertex, texture_coordinates ) );
-
-		glGenBuffers ( 1, &mesh.index_buffer );
-		glBindBuffer ( GL_ELEMENT_ARRAY_BUFFER, mesh.index_buffer );
-		glBufferData ( GL_ELEMENT_ARRAY_BUFFER, mesh.indices.size (  ) * sizeof ( unsigned int ), &mesh.indices [ 0 ], GL_STATIC_DRAW );
-
-		glBindBuffer ( GL_ARRAY_BUFFER, 0 );
-		glBindVertexArray ( 0 );
-	}
+	ServiceLocator::LocateResourceManager (  )->GetModel ( model.filename, &model.vertex_arrays, &model.num_vertices );
 }
 
 void Renderer::RenderModel ( Model& model )
 {
-	for ( Mesh mesh : model.meshes )
+	for ( int i = 0; i < model.vertex_arrays.size (  ); i++ )
 	{
-		glBindVertexArray ( mesh.vertex_array );
+		glBindVertexArray ( model.vertex_arrays [ i ] );
 
 		glEnableVertexAttribArray ( 0 );
 		glEnableVertexAttribArray ( 1 );
 		//glEnableVertexAttribArray ( 2 );
 		
 		//glPolygonMode ( GL_FRONT_AND_BACK, GL_POINT );
-		glDrawElements ( GL_TRIANGLES, mesh.indices.size (  ), GL_UNSIGNED_INT, NULL );
+		glDrawElements ( GL_TRIANGLES, model.num_vertices [ i ], GL_UNSIGNED_INT, NULL );
 
 		//glDisableVertexAttribArray ( 2 );
 		glDisableVertexAttribArray ( 1 );
 		glDisableVertexAttribArray ( 0 );
 
 		glBindVertexArray ( 0 );
-	}	
+	}
 }
 
 glm::mat4 Renderer::CreateTransformation ( Transform* transform )

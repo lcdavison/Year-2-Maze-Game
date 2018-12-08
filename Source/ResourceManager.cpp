@@ -7,9 +7,10 @@ ResourceManager::ResourceManager (  )
 {
 }
 
-bool ResourceManager::LoadModel ( const std::string& path, Model* model )
+bool ResourceManager::LoadModel ( const std::string& path )
 {
 	Assimp::Importer importer;
+	ModelData model;
 
 	const aiScene* scene = importer.ReadFile ( path.c_str (  ), aiProcess_Triangulate | aiProcess_FlipUVs );
 
@@ -21,7 +22,16 @@ bool ResourceManager::LoadModel ( const std::string& path, Model* model )
 
 	directory = path.substr ( 0, path.find_last_of ( '/' ) );
 
-	ProcessNode ( scene->mRootNode, scene, model->meshes );
+	ProcessNode ( scene->mRootNode, scene, model.meshes );
+
+	std::string filename = path.substr ( path.find_last_of ( '/' ) + 1, path.back (  ) );
+
+	std::cout << "Model Loaded : " << filename << std::endl;
+
+	// Generate OpenGL Buffers for ModelData
+	ProcessModel ( model );
+
+	loaded_models [ filename ] = model;
 
 	return true;	
 }
@@ -114,6 +124,30 @@ std::vector < Texture > ResourceManager::LoadMaterial ( aiMaterial* material, ai
 	return textures;
 }
 
+void ResourceManager::ProcessModel ( ModelData& model )
+{
+	for ( Mesh& mesh : model.meshes )
+	{
+		glGenVertexArrays ( 1, &mesh.vertex_array );
+		glBindVertexArray ( mesh.vertex_array );
+
+		glGenBuffers ( 1, &mesh.vertex_buffer );
+		glBindBuffer ( GL_ARRAY_BUFFER, mesh.vertex_buffer );
+		glBufferData ( GL_ARRAY_BUFFER, mesh.vertices.size (  ) * sizeof ( Vertex ), &mesh.vertices [ 0 ], GL_STATIC_DRAW );
+
+		glVertexAttribPointer ( 0, 3, GL_FLOAT, GL_FALSE, sizeof ( Vertex ), ( void* ) 0 );
+		glVertexAttribPointer ( 1, 3, GL_FLOAT, GL_FALSE, sizeof ( Vertex ), ( void* ) offsetof ( Vertex, normal ) );
+		//glVertexAttribPointer ( 2, 2, GL_FLOAT, GL_FALSE, sizeof ( Vertex ), ( void* ) offsetof ( Vertex, texture_coordinates ) );
+
+		glGenBuffers ( 1, &mesh.index_buffer );
+		glBindBuffer ( GL_ELEMENT_ARRAY_BUFFER, mesh.index_buffer );
+		glBufferData ( GL_ELEMENT_ARRAY_BUFFER, mesh.indices.size (  ) * sizeof ( unsigned int ), &mesh.indices [ 0 ], GL_STATIC_DRAW );
+
+		glBindBuffer ( GL_ARRAY_BUFFER, 0 );
+		glBindVertexArray ( 0 );
+	}
+}
+
 TEXTURE_TYPE ResourceManager::ConvertType ( const aiTextureType type )
 {
 	switch ( type )	
@@ -189,5 +223,14 @@ bool ResourceManager::LoadTexture ( const std::string& path, unsigned int& out_t
 		stbi_image_free ( data );
 
 		return true;
+	}
+}
+
+void ResourceManager::GetModel ( const std::string& filename, std::vector < unsigned int >* vertex_arrays, std::vector < unsigned int >* vertex_counts )
+{	
+	for ( Mesh mesh : loaded_models [ filename ].meshes )
+	{
+		vertex_arrays->push_back ( mesh.vertex_array );
+		vertex_counts->push_back ( mesh.indices.size (  ) );
 	}
 }

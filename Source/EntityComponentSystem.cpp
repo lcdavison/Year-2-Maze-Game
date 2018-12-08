@@ -8,6 +8,15 @@ EntityComponentSystem::EntityComponentSystem (  )
 {
 }
 
+EntityComponentSystem::~EntityComponentSystem (  )
+{
+	Clear (  );
+
+	/*
+	if ( models.size (  ) > 0 )
+	ClearModels (  );*/
+}
+
 const Entity* EntityComponentSystem::CreateEntity ( std::string name )
 {
 	Entity new_entity;
@@ -67,12 +76,13 @@ std::vector < Transform >& EntityComponentSystem::GetTransforms (  )
 	return transforms;
 }
 
-Model* EntityComponentSystem::AddModel ( const Entity* entity )
+Model* EntityComponentSystem::AddModel ( const Entity* entity, const std::string& filename )
 {
 	Model new_model;
 
 	new_model.entity = entity->id;
-
+	new_model.filename = filename;
+	
 	models.push_back ( new_model );
 
 	return &models.back (  );
@@ -131,9 +141,21 @@ void EntityComponentSystem::Update ( const float& delta_time )
 void EntityComponentSystem::Clear (  )
 {
 	// TODO: Clear all of the components and entities
+	// Iterate Each Component List and Clear it
 }
 
+/*
 void EntityComponentSystem::ClearModels (  )
 {
-	// TODO: Clear all the model buffers
-}
+	// Delete the data for each model
+	for ( Model& model : models )
+	{
+		// Delete the buffers for each mesh
+		for ( Mesh& mesh : model.meshes )
+		{
+			glDeleteBuffers ( 1, &mesh.vertex_buffer );
+			glDeleteBuffers ( 1, &mesh.index_buffer );
+			glDeleteVertexArrays ( 1, &mesh.vertex_array );
+		}
+	}
+	}*/

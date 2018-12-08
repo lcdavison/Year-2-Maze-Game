@@ -26,7 +26,7 @@ class Renderer
 
 		void Clear (  );
 
-		void CreateModel ( Model& );
+		void SetupModel ( Model& );
 		void RenderModel ( Model& );
 
 		glm::mat4 CreateTransformation ( Transform* );

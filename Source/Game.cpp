@@ -21,6 +21,8 @@ void Game::Start (  )
 	ServiceLocator::ProvideResourceManager ( std::make_shared < ResourceManager > (  ) );
 	ServiceLocator::ProvideInputManager ( input );
 
+	ServiceLocator::LocateResourceManager (  )->LoadModel ( "resources/models/Plane.obj" );
+
 	BuildLevel (  );
 
 	renderer->Initialize (  );
@@ -127,13 +129,11 @@ void Game::BuildLevel (  )
 		{
 			const Entity* floor = ecs->CreateEntity (  );
 			Transform* t = ecs->AddTransform ( floor );
-			Model* m = ecs->AddModel ( floor );
+			ecs->AddModel ( floor, "Plane.obj" );
 
 			t->position = glm::vec3 ( x * 2, 0, y * 2 );
 			t->rotation = glm::vec3 ( 90.0f, 0.0f, 0.0f );
-			t->scale = glm::vec3 ( 1.0f, 1.0f, 1.0f );
-
-			ServiceLocator::LocateResourceManager (  )->LoadModel ( "resources/models/Plane.obj", m );
+			t->scale = glm::vec3 ( 1.0f, 1.0f, 1.0f );			
 		}
 	}
 }
