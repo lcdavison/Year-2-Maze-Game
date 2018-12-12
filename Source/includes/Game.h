@@ -28,10 +28,12 @@ class Game
 		void Render (  );
 
 		bool running = false;
-		const float delta_time = 1000.0f / 60.0f;
+
+		glm::vec2 mouse_sensitivity = glm::vec2 ( 0.1f, 0.1f );
 
 		std::shared_ptr < Window > window;
 		std::shared_ptr < Renderer > renderer;
 		std::shared_ptr < EntityComponentSystem > ecs;
 		std::shared_ptr < InputManager > input;
+		std::shared_ptr < Time > time;
 };

@@ -33,6 +33,7 @@ class Renderer
 		glm::mat4 CreateView ( Transform* );
 
 		glm::mat4 projection;
+	
 		const Entity* player;
 
 		std::shared_ptr < EntityComponentSystem > ecs;

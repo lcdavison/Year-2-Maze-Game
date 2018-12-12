@@ -1,5 +1,8 @@
 #include "Includes/Game.h"
 
+// TODO: Create Maze Using planes
+// TODO: Collision Detection and Resolution
+
 Game::Game (  )
 {
 }
@@ -15,11 +18,13 @@ void Game::Start (  )
 	renderer = std::make_shared < Renderer > ( window );
 	ecs = std::make_shared < EntityComponentSystem > (  );
 	input = std::make_shared < InputManager > (  );
+	time = std::make_shared < Time > (  );
 
 	ServiceLocator::ProvideWindow ( window );
 	ServiceLocator::ProvideEntityComponentSystem ( ecs );
 	ServiceLocator::ProvideResourceManager ( std::make_shared < ResourceManager > (  ) );
 	ServiceLocator::ProvideInputManager ( input );
+	ServiceLocator::ProvideTime ( time );
 
 	ServiceLocator::LocateResourceManager (  )->LoadModel ( "resources/models/Plane.obj" );
 
@@ -38,6 +43,9 @@ void Game::Stop (  )
 
 void Game::MainLoop (  )
 {
+	// Cache Delta Time
+	const float delta_time = time->GetDeltaTime (  );
+	
 	unsigned int last_time = SDL_GetTicks (  );
 	unsigned int current_time = 0;
 	float accumulator = 0.0f;
@@ -84,6 +92,19 @@ void Game::MainLoop (  )
 
 void Game::ProcessInput (  )
 {
+	// Recapture the mouse if focus is lost
+	SDL_CaptureMouse ( SDL_TRUE );
+	
+	// Set Camera Rotation
+	glm::vec2 mouse_position = input->GetMousePosition (  );
+	const Entity* player = ecs->GetEntity ( 0 );
+	Transform* player_transform = ecs->GetTransform ( player );
+	
+	player_transform->rotation.x += -mouse_position.y * mouse_sensitivity.y;
+	player_transform->rotation.x = glm::clamp ( player_transform->rotation.x, -60.0f, 60.0f );
+	
+	player_transform->rotation.y += mouse_position.x * mouse_sensitivity.x;
+
 	for ( Command command : ecs->GetPlayerController (  )->commands )
 	{
 		switch ( command.type )
@@ -123,6 +144,8 @@ void Game::BuildLevel (  )
 	ecs->AddPlayerCommand ( SDLK_w, &PlayerCommands::MoveForward, KEYHELD );
 	ecs->AddPlayerCommand ( SDLK_s, &PlayerCommands::MoveBackward, KEYHELD );
 
+	// TODO: Command To Quit Game if escape is pressed?
+
 	for ( int x = 0; x < 10; x++ )
 	{
 		for ( int y = 0; y < 10; y++ )
@@ -131,7 +154,7 @@ void Game::BuildLevel (  )
 			Transform* t = ecs->AddTransform ( floor );
 			ecs->AddModel ( floor, "Plane.obj" );
 
-			t->position = glm::vec3 ( x * 2, 0, y * 2 );
+			t->position = glm::vec3 ( x * 4, 0, y * 4 );
 			t->rotation = glm::vec3 ( 90.0f, 0.0f, 0.0f );
 			t->scale = glm::vec3 ( 1.0f, 1.0f, 1.0f );			
 		}

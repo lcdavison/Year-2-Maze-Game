@@ -1,8 +1,8 @@
 #include "Includes/Renderer.h"
 
 //	TODO: Use callback to recalculate the projection matrix
-//	TODO: Use Camera component to calculate view
 //	TODO: Create more effective Uniform management
+//	TODO: Store the view matrix to enable collection of directions for FPS Camera
 
 Renderer::Renderer ( std::shared_ptr < Window > window ) : window ( window )
 {
@@ -10,6 +10,10 @@ Renderer::Renderer ( std::shared_ptr < Window > window ) : window ( window )
 		std::cerr << "Failed To Initialize GLEW" << std::endl;
 
 	glEnable ( GL_DEPTH_TEST );
+	
+	glEnable ( GL_CULL_FACE );
+	glCullFace ( GL_BACK );
+	
 	glClearColor ( 0.0, 0.0, 0.2, 1.0 );
 }
 
@@ -32,7 +36,7 @@ void Renderer::Initialize (  )
 		SetupModel ( model );
 	}
 
-	projection = glm::perspective ( glm::radians ( 90.0f ), 1280.0f / 720.0f, 0.1f, 100.0f );
+	projection = glm::perspective ( glm::radians ( 60.0f ), 1280.0f / 720.0f, 0.1f, 100.0f );
 	player = ecs->GetEntity ( 0 );
 }
 
@@ -52,7 +56,6 @@ void Renderer::Render (  )
 	glUniformMatrix4fv ( view_loc, 1, GL_FALSE, &view [ 0 ] [ 0 ] );
 
 	int model_loc = glGetUniformLocation ( program->GetProgramID (  ), "model" );
-
 	
 	for ( Model model : ecs->GetModels (  ) )	
 	{
@@ -111,14 +114,28 @@ glm::mat4 Renderer::CreateTransformation ( Transform* transform )
 	transformation = glm::rotate ( transformation, glm::radians ( transform->rotation.y ), glm::vec3 ( 0, 1, 0 ) );
 	transformation = glm::rotate ( transformation, glm::radians ( transform->rotation.x ), glm::vec3 ( 1, 0, 0 ) );
 
+	transform->forward = glm::vec3 ( transformation [ 2 ][ 0 ], transformation [ 2 ][ 1 ], transformation [ 2 ][ 2 ] );
+
 	return transformation;
 }
 
 glm::mat4 Renderer::CreateView ( Transform* transform )
 {
-	glm::mat4 view = glm::mat4 ( 1 );
+	// TODO: Create Calculation for forward vector, to avoid matrix multiplication
+	glm::mat4 transformation = glm::mat4 ( 1 );
 
-	view = glm::translate ( view, -1.0f * transform->position );
+	transformation = glm::translate ( transformation, transform->position );
+	transformation = glm::rotate ( transformation, glm::radians ( transform->rotation.y ), glm::vec3 ( 0, 1, 0 ) );
 
+	// Extracts forward move vector
+	transform->forward = glm::vec3 ( transformation [ 2 ][ 0 ], transformation [ 2 ][ 1 ], transformation [ 2 ][ 2 ] );
+
+	// Rotates for look matrix
+	transformation = glm::rotate ( transformation, glm::radians ( transform->rotation.x ), glm::vec3 ( 1, 0, 0 ) );
+
+	glm::vec3 forward = glm::vec3 ( transformation [ 2 ][ 0 ], transformation [ 2 ][ 1 ], transformation [ 2 ][ 2 ] );
+
+	// Look in direction
+	glm::mat4 view = glm::lookAt ( transform->position, transform->position + forward, glm::vec3 ( 0, 1, 0 ) );
 	return view;
 }
