@@ -9,58 +9,67 @@ namespace PlayerCommands
 	namespace
 	{
 		std::shared_ptr < EntityComponentSystem > ecs = nullptr;
-	};
+		std::shared_ptr < Time > time = nullptr;
+
+		static void GetECS (  )
+		{
+			if ( ecs == nullptr )
+				ecs = ServiceLocator::LocateEntityComponentSystem (  );	
+		}
+
+		static void GetTime (  )
+		{
+			if ( time == nullptr )
+				time = ServiceLocator::LocateTime (  );
+		}
+	}; 
 
 	//  TODO: Cache Player
 	static void MoveLeft (  )
 	{
-		if ( ecs == nullptr )
-			ecs = ServiceLocator::LocateEntityComponentSystem (  );
-
+	        GetECS (  );
+		GetTime (  );
+		
 		const Entity* player = ecs->GetEntity ( 0 );
 		Transform* transform = ecs->GetTransform ( player );
 
-		transform->position.x -= 0.1f;
-		
-		std::cout << "Move Left : " << transform->position.x << std::endl;
+		glm::vec3 right = glm::cross ( transform->forward, glm::vec3 ( 0, 1, 0 ) );
+
+		transform->position -= 2.0f * right * ( time->GetDeltaTime (  ) * 0.001f );
 	}
 
 	static void MoveRight (  )
 	{
-		if ( ecs == nullptr )
-			ecs = ServiceLocator::LocateEntityComponentSystem (  );
+		GetECS (  );
+		GetTime (  );
 
 		const Entity* player = ecs->GetEntity ( 0 );
 		Transform* transform = ecs->GetTransform ( player );
-
-		transform->position.x += 0.1f;
 		
-		std::cout << "Move Right" << std::endl;
+		glm::vec3 right = glm::cross ( transform->forward, glm::vec3 ( 0, 1, 0 ) );
+
+		transform->position += 2.0f * right * ( time->GetDeltaTime (  ) * 0.001f );
 	}
 
 	static void MoveForward (  )
 	{
-		if ( ecs == nullptr )
-			ecs = ServiceLocator::LocateEntityComponentSystem (  );
+		GetECS (  );
+		GetTime (  );
 
 		const Entity* player = ecs->GetEntity ( 0 );
 		Transform* transform = ecs->GetTransform ( player );
 
-		transform->position.z -= 0.1f;
-		
-		std::cout << "Move Forward" << std::endl;
+		transform->position += 2.0f * transform->forward * ( time->GetDeltaTime (  ) * 0.001f );
 	}
 
 	static void MoveBackward (  )
 	{
-		if ( ecs == nullptr )
-			ecs = ServiceLocator::LocateEntityComponentSystem (  );
+		GetECS (  );
+		GetTime (  );
 
 		const Entity* player = ecs->GetEntity ( 0 );
 		Transform* transform = ecs->GetTransform ( player );
 
-		transform->position.z += 0.1f;
-		
-		std::cout << "Move Backward" << std::endl;
+		transform->position += 2.0f * -transform->forward * ( time->GetDeltaTime (  ) * 0.001f );
 	}
 };
