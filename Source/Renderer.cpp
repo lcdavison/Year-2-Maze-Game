@@ -121,21 +121,14 @@ glm::mat4 Renderer::CreateTransformation ( Transform* transform )
 
 glm::mat4 Renderer::CreateView ( Transform* transform )
 {
-	// TODO: Create Calculation for forward vector, to avoid matrix multiplication
-	glm::mat4 transformation = glm::mat4 ( 1 );
+	// Derived From Rotation Matrix - Enables player to walk in the direction they are looking
+	transform->forward = glm::vec3 ( glm::sin ( glm::radians ( transform->rotation.y ) ), 0, glm::cos ( glm::radians ( transform->rotation.y ) ) );
 
-	transformation = glm::translate ( transformation, transform->position );
-	transformation = glm::rotate ( transformation, glm::radians ( transform->rotation.y ), glm::vec3 ( 0, 1, 0 ) );
-
-	// Extracts forward move vector
-	transform->forward = glm::vec3 ( transformation [ 2 ][ 0 ], transformation [ 2 ][ 1 ], transformation [ 2 ][ 2 ] );
-
-	// Rotates for look matrix
-	transformation = glm::rotate ( transformation, glm::radians ( transform->rotation.x ), glm::vec3 ( 1, 0, 0 ) );
-
-	glm::vec3 forward = glm::vec3 ( transformation [ 2 ][ 0 ], transformation [ 2 ][ 1 ], transformation [ 2 ][ 2 ] );
+	// Rotates for Look Matrix - Derived From Rotation Around X and Y Axes
+	glm::vec3 forward = glm::vec3 ( transform->forward.x * glm::cos ( glm::radians ( transform->rotation.x ) ), -glm::sin ( glm::radians ( transform->rotation.x ) ), transform->forward.z * glm::cos ( glm::radians ( transform->rotation.x ) ) );
 
 	// Look in direction
 	glm::mat4 view = glm::lookAt ( transform->position, transform->position + forward, glm::vec3 ( 0, 1, 0 ) );
+	
 	return view;
 }

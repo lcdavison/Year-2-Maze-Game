@@ -11,6 +11,9 @@
 
 #include <memory>
 
+/*
+  Renderer provides functionality to draw elements to the screen, using the OpenGL API
+*/
 class Renderer 
 {
 	public:
