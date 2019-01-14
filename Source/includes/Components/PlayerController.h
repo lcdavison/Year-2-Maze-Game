@@ -7,9 +7,8 @@
 #include <vector>
 
 /*
-  Stores a set of commands used to update the player.
+	The player controller component stores a set of commands used to update the player.
 */
-
 struct PlayerController : public Component 
 {
 	std::vector < Command > commands;
