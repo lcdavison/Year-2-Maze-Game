@@ -5,6 +5,11 @@
 #include <iostream>
 #include <cstring>
 
+/*
+	The window class is used to handle the window that displays the content of the game.
+	This class is built on top of the SDL library, which is used to create the window and
+	OpenGL context.
+*/
 class Window 
 {
 	public:
@@ -19,8 +24,8 @@ class Window
 
 	private:
 		
-		char* title = nullptr;
-		unsigned int width, height;
+		char* title = nullptr;		//	Window title
+		unsigned int width, height;	//	Window width + height
 
-		SDL_Window* window = nullptr;
+		SDL_Window* window = nullptr;	//	SDL Window
 };

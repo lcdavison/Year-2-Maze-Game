@@ -7,6 +7,11 @@
 
 #include <vector>
 
+/*
+	The shader program class is used to handle the compilation of shaders,
+	and the creation of the shader program executable that will run on the
+	GPU.
+*/
 class ShaderProgram 
 {
 	public:
@@ -24,5 +29,5 @@ class ShaderProgram
 		
 		unsigned int program_id;
 
-		std::vector < Shader > shaders;
+		std::vector < Shader > shaders;		//	The loaded shaders
 };

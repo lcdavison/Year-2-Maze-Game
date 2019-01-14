@@ -18,6 +18,17 @@
 #include <string>
 #include <sstream>
 
+/*
+	The resource manager class is used to load resources into the game engine,
+	for use by the components that belong to entities.
+	
+	The following functions were implemented from www.learnopengl.com ( Vries, 2017 ):
+
+	*	LoadModel
+	*	LoadTexture
+	*	ProcessNode
+	*	ProcessMesh
+*/
 class ResourceManager 
 {
 	public:
@@ -27,7 +38,7 @@ class ResourceManager
 		bool LoadTexture ( const std::string&, unsigned int& );
 		bool LoadShader ( const char*, std::string& );
 
-		void GetModel ( const std::string&, std::vector < unsigned int >*, std::vector < unsigned int >* );
+		const ModelData GetModel ( const std::string& );
 
 	private:
 
